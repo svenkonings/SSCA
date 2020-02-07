@@ -2,6 +2,7 @@ package main.scala.analyser.util
 
 import codeAnalysis.analyser.Compiler.CompilerS
 import codeAnalysis.analyser.AST._
+import codeAnalysis.analyser.util.ASTPrinter
 
 /**
   * Created by Erik on 14-4-2017.
@@ -14,11 +15,11 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
   def parseTree(tree: Tree): AST = {
     compiler.global.ask{
       () =>
-        val ast = getAstNode(tree)
+        var ast = getAstNode(tree)
         if (ast == null)
-          new AST(getChildren(tree), getRangePos(tree))
-        else
-          ast
+          ast = new AST(getChildren(tree), getRangePos(tree))
+        print(ASTPrinter.ast2String(ast))
+        ast
     }
   }
 
