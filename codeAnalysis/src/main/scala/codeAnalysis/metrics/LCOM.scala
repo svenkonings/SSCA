@@ -57,29 +57,29 @@ class LCOM extends ObjectMetric {
     }
   }
 
-  def getFunctions(tree: Module, nested: Boolean) : List[FunctionDef] = {
-    def recursive(ast: AST) : List[FunctionDef] = ast match {
-      case x: FunctionDef =>
+  def getFunctions(tree: Module, nested: Boolean) : List[MethodDef] = {
+    def recursive(ast: AST) : List[MethodDef] = ast match {
+      case x: MethodDef =>
         if (x.name == "<init>")
           List()
         else if (nested)
-          x :: x.children.foldLeft(List[FunctionDef]())(_ ::: recursive(_))
+          x :: x.children.foldLeft(List[MethodDef]())(_ ::: recursive(_))
         else
           List(x)
       case x: Module =>
         List()
       case _ =>
         if (nested)
-          ast.children.foldLeft(List[FunctionDef]())(_ ::: recursive(_))
+          ast.children.foldLeft(List[MethodDef]())(_ ::: recursive(_))
         else
           List()
     }
-    tree.children.foldLeft(List[FunctionDef]())(_ ::: recursive(_))
+    tree.children.foldLeft(List[MethodDef]())(_ ::: recursive(_))
   }
 
-  def getPairsFunction(tree: Module, nested: Boolean): List[(FunctionDef, FunctionDef)] = {
+  def getPairsFunction(tree: Module, nested: Boolean): List[(MethodDef, MethodDef)] = {
     @tailrec
-    def recursive(tree1: List[FunctionDef], tree2: List[FunctionDef], runningResult: List[(FunctionDef, FunctionDef)] = List()) : List[(FunctionDef, FunctionDef)] = (tree1, tree2) match {
+    def recursive(tree1: List[MethodDef], tree2: List[MethodDef], runningResult: List[(MethodDef, MethodDef)] = List()) : List[(MethodDef, MethodDef)] = (tree1, tree2) match {
       case (Nil, Nil) =>
         runningResult
       case ((x::Nil), Nil) =>
@@ -103,7 +103,7 @@ class LCOM extends ObjectMetric {
         b match {
           case x: Value =>
               x.name :: a ::: getUsedVariables(b, nested)
-          case x: FunctionDef =>
+          case x: MethodDef =>
             if (nested)
               a ::: getUsedVariables(b, nested)
             else

@@ -10,7 +10,7 @@ import main.scala.analyser.result.MetricResult
 class NPVS extends FunctionMetric{
   override def functionHeader: List[String] = List("NPVS", "NPVSmatch", "NPVSmatchParms")
 
-  override def run(tree: FunctionDef, code: List[String]): List[MetricResult] = {
+  override def run(tree: MethodDef, code: List[String]): List[MetricResult] = {
     val b = matchParms(tree)
 
     List(new MetricResult(tree.pos, tree.name, "NPVS", countValDefs(tree).length),

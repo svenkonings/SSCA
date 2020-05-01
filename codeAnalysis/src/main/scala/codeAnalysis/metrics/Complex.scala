@@ -18,7 +18,7 @@ class Complex extends FunctionMetric with ComplexUtil{
     * @param code the code of a function
     * @return
     */
-  def run(tree: FunctionDef, code: List[String]): List[MetricResult] = {
+  def run(tree: MethodDef, code: List[String]): List[MetricResult] = {
     List(new MetricResult(tree.pos, tree.name + "$function","CC", measureComplexity(tree, false)))
   }
 }

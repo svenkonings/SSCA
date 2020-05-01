@@ -15,10 +15,10 @@ trait FunctionalUtil {
     * @param tree the ast
     * @return
     */
-  def isRecursive(tree: AST): Boolean ={
-    def recursive(tree: AST, functionName: String) : Boolean = tree match {
+  def isRecursive(tree: AST): Boolean = {
+    def recursive(tree: AST, functionName: String): Boolean = tree match {
       case node: FunctionCall =>
-        if(node.owner + "." + node.name == functionName)
+        if (node.owner + "." + node.name == functionName)
           true
         else
           tree.children.exists(x => recursive(x, functionName))
@@ -27,7 +27,7 @@ trait FunctionalUtil {
     }
 
     tree match {
-      case x: FunctionDef =>
+      case x: MethodDef =>
         recursive(x, x.owner + "." + x.name)
       case _ =>
         false
@@ -40,7 +40,7 @@ trait FunctionalUtil {
     * @param tree the ast
     * @return
     */
-  def countSideEffects(tree: AST) : Int = tree match {
+  def countSideEffects(tree: AST): Int = tree match {
     case (_: Var) | (_: VarAssignment) | (_: VarDefinition) =>
       1
     case _ =>
@@ -50,10 +50,11 @@ trait FunctionalUtil {
 
   /**
     * Checks if a function is nested
+    *
     * @param tree
     * @return
     */
-  def isNested(tree: FunctionDef): Boolean = {
+  def isNested(tree: MethodDef): Boolean = {
     tree.nested
   }
 
@@ -63,24 +64,29 @@ trait FunctionalUtil {
     * @param tree
     * @return (functional, imperative)
     */
-  def countFuncCalls(tree: AST): (Int, Int) = tree match {
-    case node: FunctionCall =>
-      if (functionalFuncs.contains(node.name))
-        tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1 + 1, a._2 + res._2) }
-      else if (impFuncs.contains(node.name))
-        tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1, a._2 + res._2 + 1) }
-      else
-        tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1, a._2 + res._2) }
-    case x: MatchCase =>
-      tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1 + 1, a._2 + res._2) }
-    case x: For =>
-      tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1, a._2 + res._2 + 1) }
-    case x: While =>
-      tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1, a._2 + res._2 + 1) }
-    case x: DoWhile =>
-      tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1, a._2 + res._2 + 1) }
-    case _ =>
-      tree.children.foldLeft((0, 0)){(a, b) => val res = countFuncCalls(b); (a._1 + res._1, a._2 + res._2) }
+  def countFuncCalls(tree: AST): (Int, Int) = {
+    implicit class TuppleAdd[A: Numeric, B: Numeric](t: (A, B)) {
+
+      import Numeric.Implicits._
+
+      def +(p: (A, B)): (A, B) = (p._1 + t._1, p._2 + t._2)
+    }
+    def score(x: AST): (Int, Int) = x match {
+//      case x: FunctionCall if functionalFuncs contains x.name => (1, 0)
+      case x: FunctionCall if impFuncs contains x.name => (0, 1)
+      case _: MatchCase => (1, 0)
+      case _: For => (0, 1)
+      case _: While => (0, 1)
+      case _: DoWhile => (0, 1)
+      case _: FunctionDef => (1, 0)
+      case _ => (0, 0)
+    }
+
+    (1, 0) + (0, 1)
+
+    def recursive(x: AST): (Int, Int) = score(x) + x.children.foldLeft((0, 0))((cur, tree) => cur + recursive(tree))
+
+    recursive(tree)
   }
 
   /**
@@ -89,8 +95,8 @@ trait FunctionalUtil {
     * @param tree the function
     * @return
     */
-  def countHigherOrderParams(tree: FunctionDef) : Int = {
-    def recursive(params: List[Param]) : Int = params match {
+  def countHigherOrderParams(tree: MethodDef): Int = {
+    def recursive(params: List[Param]): Int = params match {
       case Nil =>
         0
       case x :: tail =>
@@ -101,20 +107,38 @@ trait FunctionalUtil {
       case _ =>
         0
     }
+
     recursive(tree.params)
   }
 
-  def functionalScore(tree: FunctionDef) : Double = {
+  def paradigmScore(tree: MethodDef): ParadigmScore = {
+    // Functional
     val recursive = if (isRecursive(tree)) 1 else 0
     val nested = if (isNested(tree)) 1 else 0
-    val (func, imp) = countFuncCalls(tree)
+    val higherOrderParams = countHigherOrderParams(tree)
 
-    val funcPoints = recursive + nested + func + countHigherOrderParams(tree)
-    val impPoints = imp + countSideEffects(tree)
+    // Imperative
+    val sideEffects = countSideEffects(tree)
 
-    if (impPoints + funcPoints > 0)
-      funcPoints.toDouble / (impPoints.toDouble + funcPoints.toDouble)
-    else
-      0
+    // Both
+    val (funcCalls, impCalls) = countFuncCalls(tree)
+
+    ParadigmScore(recursive, nested, higherOrderParams, sideEffects, funcCalls, impCalls)
   }
+}
+
+case class ParadigmScore(
+  recursive: Int,
+  nested: Int,
+  higherOrderParams: Int,
+  sideEffects: Int,
+  funcCalls: Int,
+  impCalls: Int
+) {
+  val funcPoints: Int = recursive + nested + higherOrderParams + funcCalls
+  val impPoints: Int = sideEffects + impCalls
+  val funcPercent: Double = if (impPoints + funcPoints > 0)
+    funcPoints.toDouble / (impPoints + funcPoints).toDouble
+  else
+    0
 }

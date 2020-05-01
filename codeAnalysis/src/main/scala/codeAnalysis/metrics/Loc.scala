@@ -23,7 +23,7 @@ class Loc extends FunctionMetric with ObjectMetric with SourceCodeUtil with Func
     * @param code the code of the function
     * @return
     */
-  override def run(tree: FunctionDef, code: List[String]): List[MetricResult] = {
+  override def run(tree: MethodDef, code: List[String]): List[MetricResult] = {
     countLocs(code, tree, tree.name, "function")
   }
 

@@ -18,7 +18,7 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
         var ast = getAstNode(tree)
         if (ast == null)
           ast = new AST(getChildren(tree), getRangePos(tree))
-        print(ASTPrinter.ast2String(ast))
+//        print(ASTPrinter.ast2String(ast))
         ast
     }
   }
@@ -53,7 +53,7 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
           }
           val higher =  isHigherOrder(x.tpt.toString())
 
-          FunctionDef(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), isNested(x), isAnonymousFunction(x), params, x.tpt.toString(), higher)
+          MethodDef(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), isNested(x), isAnonymousFunction(x), params, x.tpt.toString(), higher)
         }
         else
           null
@@ -135,6 +135,16 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
 
       case x: If =>
         IfStatement(getChildren(x), getRangePos(tree))
+      case x: Function =>
+        val params = x.vparams.foldLeft(List[Param]()){
+          (a, b) =>
+            val higher =  isHigherOrder(b.tpt.toString())
+
+            a ::: List(Param(b.symbol.nameString, b.tpt.toString(), higher))
+        }
+        val higher =  isHigherOrder(x.tpe.toString())
+
+        FunctionDef(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), isNested(x), isAnonymousFunction(x), params, x.tpe.toString(), higher)
 
       case x =>
         null

@@ -19,7 +19,7 @@ class OutDegree extends FunctionMetric{
     * @param code the code of the function
     * @return
     */
-  override def run(tree: FunctionDef, code: List[String]): List[MetricResult] = {
+  override def run(tree: MethodDef, code: List[String]): List[MetricResult] = {
     def countFunctionCalls(tree : AST) : List[String] = tree match {
       case x : FunctionCall =>
         val g = (x.owner +"." + x.name) :: tree.children.foldLeft(List[String]())((a,b) => a ::: countFunctionCalls(b))

@@ -65,7 +65,7 @@ object ASTPrinter {
     case _: TraitDefinition => typeOf[TraitDefinition]
     case _: ClassDefinition => typeOf[ClassDefinition]
     case _: ObjectDefinition => typeOf[ObjectDefinition]
-    case _: FunctionDef => typeOf[FunctionDef]
+    case _: MethodDef => typeOf[MethodDef]
     case _: ValAssignment => typeOf[ValAssignment]
     case _: VarAssignment => typeOf[VarAssignment]
     case _: ValDefinition => typeOf[ValDefinition]

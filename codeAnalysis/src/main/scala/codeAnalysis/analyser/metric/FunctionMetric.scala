@@ -16,5 +16,5 @@ trait FunctionMetric extends Metric{
     * @param code the code of the function
     * @return
     */
-  def run(tree: FunctionDef, code: List[String]): List[MetricResult]
+  def run(tree: MethodDef, code: List[String]): List[MetricResult]
 }

@@ -24,7 +24,7 @@ class RFC extends ObjectMetric {
   }
 
   def getRFC(tree: AST): List[String] = tree match {
-    case x: FunctionDef =>
+    case x: MethodDef =>
       x.owner + x.name + "$FUNDEF" :: tree.children.foldLeft(List[String]())((a, b) => a ::: getRFC(b))
     case x: FunctionCall =>
       x.owner + x.name + "$FUNCALL" :: tree.children.foldLeft(List[String]())((a, b) => a ::: getRFC(b))

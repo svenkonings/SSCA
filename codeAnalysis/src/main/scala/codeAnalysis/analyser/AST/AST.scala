@@ -28,6 +28,9 @@ case class ObjectDefinition(override val children: List[AST], override val pos: 
 
 
 
+case class MethodDef(override val children: List[AST], override val pos: RangePosition, name: String, owner: String, nested: Boolean, anonymous: Boolean, params: List[Param], typeString: String, higher: Boolean)
+  extends AST(children, pos)
+
 case class FunctionDef(override val children: List[AST], override val pos: RangePosition, name: String, owner: String, nested: Boolean, anonymous: Boolean, params: List[Param], typeString: String, higher: Boolean)
   extends AST(children, pos)
 

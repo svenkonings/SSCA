@@ -51,7 +51,7 @@ class MetricRunner(compiler: CompilerS, metrics : List[Metric], context: Project
         parent.addResult(result)
         parent
 
-      case node: FunctionDef =>
+      case node: MethodDef =>
         val result = new FunctionResult(node.pos, parent, node.name)
         result.addResult(executeFunctionMetrics(node))
         tree.children.foreach(x => traverse(x, result))
@@ -127,7 +127,7 @@ class MetricRunner(compiler: CompilerS, metrics : List[Metric], context: Project
     * @param tree
     * @return
     */
-  private def executeFunctionMetrics(tree: FunctionDef): List[MetricResult] = {
+  private def executeFunctionMetrics(tree: MethodDef): List[MetricResult] = {
     val code = getOriginalSourceCode(tree)
     if (code == null)
       return List[MetricResult]()

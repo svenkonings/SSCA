@@ -8,15 +8,22 @@ import main.scala.analyser.Analyser
   */
 object Main {
 
-  def main (args: Array[String] ): Unit = {
-    val a = "C:\\Users\\SvenK\\Documents\\SSCA\\codeAnalysis\\src\\main\\scala\\codeAnalysis\\Utils\\FunctionalUtil.scala"
+  def main(args: Array[String]): Unit = {
+    val metrics = List(new FunctionalMetrics)
+//    val an = new Analyser(metrics, "C:\\Users\\SvenK\\Documents\\slang", 6)
+    val an = new Analyser(metrics, "C:\\Users\\SvenK\\Documents\\slang\\mp-metrics\\src\\test\\resources", 1)
+    val results = an.analyse()
+    val groupedResults = results.flatMap(_.flatten()).groupBy(_.metricName)
+    for ((metricName, metricResults) <- groupedResults) {
+      printStats(metricName, metricResults.map(_.value))
+    }
+  }
 
-    val metrics = List(new Complex)
-    val an = new Analyser(metrics, "C:\\Users\\SvenK\\Documents\\SSCA\\codeAnalysis", 1)
-
-    STimer.time("Analyse", println(an.analyse(a)))
-
-    println("done")
+  def printStats(name: String, values: List[Double]): Unit = {
+    val average = values.sum / values.length
+    val min = values.min
+    val max = values.max
+    println(f"Name: $name,\taverage: $average,\tmin: $min,\tmax: $max")
   }
 
 }

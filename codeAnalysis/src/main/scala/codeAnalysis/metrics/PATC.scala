@@ -1,6 +1,6 @@
 package codeAnalysis.metrics
 
-import codeAnalysis.analyser.AST.{AST, Case, FunctionDef}
+import codeAnalysis.analyser.AST.{AST, Case, MethodDef}
 import main.scala.analyser.metric.FunctionMetric
 import main.scala.analyser.result.MetricResult
 
@@ -10,7 +10,7 @@ import main.scala.analyser.result.MetricResult
 class PATC extends FunctionMetric{
   override def functionHeader: List[String] = List("PATCmatch")
 
-  override def run(tree: FunctionDef, code: List[String]): List[MetricResult] = {
+  override def run(tree: MethodDef, code: List[String]): List[MetricResult] = {
     List(new MetricResult(tree.pos, tree.name, "PATCmatch", countMatchConstructors(tree)))
   }
 

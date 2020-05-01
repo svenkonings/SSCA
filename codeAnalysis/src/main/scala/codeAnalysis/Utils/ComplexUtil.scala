@@ -24,7 +24,7 @@ trait ComplexUtil {
         tree.children.foldLeft(1)((a, b) => a + recursive(b))
       case x: Case =>
         tree.children.foldLeft(1)((a, b) => a + recursive(b))
-      case x: FunctionDef =>
+      case x: MethodDef =>
         if (!nested)
           0
         else

@@ -20,7 +20,7 @@ class PatternSize extends FunctionMetric{
     * @param code the code of the function
     * @return
     */
-  override def run(tree: FunctionDef, code: List[String]): List[MetricResult] = {
+  override def run(tree: MethodDef, code: List[String]): List[MetricResult] = {
     def count(tree: AST) : Int = tree match {
       case _ =>
         tree.children.foldLeft(1)((a,b) => a + count(b))
