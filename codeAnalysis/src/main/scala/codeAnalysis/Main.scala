@@ -11,7 +11,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     val metrics = List(new FunctionalMetrics)
 //    val an = new Analyser(metrics, "C:\\Users\\SvenK\\Documents\\slang", 6)
-    val an = new Analyser(metrics, "C:\\Users\\SvenK\\Documents\\slang\\mp-metrics\\src\\test\\resources", 1)
+    val an = new Analyser(metrics, "C:\\Users\\SvenK\\Documents\\slang\\mp-metrics\\src\\test\\resources", 1, includeTest = true)
     val results = an.analyse()
     val groupedResults = results.flatMap(_.flatten()).groupBy(_.metricName)
     for ((metricName, metricResults) <- groupedResults) {
