@@ -21,11 +21,14 @@ trait ProjectUtil {
       scalaFiles ++ these.filter(_.isDirectory).flatMap(listFiles)
     }
 
+    val file = new File(projectPath)
     /* If testing: the test directory isn't filtered out*/
-    if (includeTest)
-      listFiles(new File(projectPath))
+    if (file.isFile)
+      Array(file)
+    else if (includeTest)
+      listFiles(file)
     else
-      listFiles(new File(projectPath)).filter(f => """(\\test\\)|(\/test\/)""".r.findFirstIn(f.getPath).isEmpty)
+      listFiles(file).filter(f => """(\\test\\)|(\/test\/)""".r.findFirstIn(f.getPath).isEmpty)
   }
 
   /**

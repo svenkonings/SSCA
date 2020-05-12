@@ -85,3 +85,4 @@ project/target/
 target/
 /tmp/
 /tmp/gitAkkaAkka/
+*.pyc

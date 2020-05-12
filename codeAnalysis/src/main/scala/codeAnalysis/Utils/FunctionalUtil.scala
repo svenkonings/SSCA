@@ -72,8 +72,13 @@ trait FunctionalUtil {
       def +(p: (A, B)): (A, B) = (p._1 + t._1, p._2 + t._2)
     }
     def score(x: AST): (Int, Int) = x match {
-//      case x: FunctionCall if functionalFuncs contains x.name => (1, 0)
-      case x: FunctionCall if impFuncs contains x.name => (0, 1)
+      case x: FunctionCall if functionalFuncs contains x.name => (1, 0)
+      case x: FunctionCall if impFuncs contains x.name =>
+        // Generates anonymous function internally, -1 funcCalls to compensate
+        if (x.children.exists(_.isInstanceOf[FunctionDef]))
+          (-1, 1)
+        else
+          (0, 1)
       case _: MatchCase => (1, 0)
       case _: For => (0, 1)
       case _: While => (0, 1)
@@ -81,8 +86,6 @@ trait FunctionalUtil {
       case _: FunctionDef => (1, 0)
       case _ => (0, 0)
     }
-
-    (1, 0) + (0, 1)
 
     def recursive(x: AST): (Int, Int) = score(x) + x.children.foldLeft((0, 0))((cur, tree) => cur + recursive(tree))
 
@@ -128,13 +131,13 @@ trait FunctionalUtil {
 }
 
 case class ParadigmScore(
-  recursive: Int,
-  nested: Int,
-  higherOrderParams: Int,
-  sideEffects: Int,
-  funcCalls: Int,
-  impCalls: Int
-) {
+                          recursive: Int,
+                          nested: Int,
+                          higherOrderParams: Int,
+                          sideEffects: Int,
+                          funcCalls: Int,
+                          impCalls: Int
+                        ) {
   val funcPoints: Int = recursive + nested + higherOrderParams + funcCalls
   val impPoints: Int = sideEffects + impCalls
   val funcPercent: Double = if (impPoints + funcPoints > 0)
