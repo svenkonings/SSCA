@@ -22,7 +22,7 @@ class Repo(userName: String, repoName: String, repoPath: String, branch: String,
   private def initGitRepo: Git = {
     val dir = new File(repoPath)
     if (!dir.exists())
-      GitR.runCommand(Paths.get(dir.getParent), "git", "clone", "git@github.com:" + userName + "/" + repoName + ".git", repoPath)
+      GitR.runCommand(Paths.get(dir.getParent), "git", "clone", "https://github.com/" + userName + "/" + repoName + ".git", repoPath)
 
     Git.open(dir)
   }
