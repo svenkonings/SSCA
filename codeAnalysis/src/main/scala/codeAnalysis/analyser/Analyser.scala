@@ -11,7 +11,7 @@ import main.scala.analyser.util.{ProjectUtil, ResultUtil}
 /**
   * Created by Erik on 5-4-2017.
   */
-class Analyser(metrics: List[Metric], projectPath: String, threads: Int) extends ProjectUtil with ResultUtil{
+class Analyser(metrics: List[Metric], projectPath: String, threads: Int, includeTest: Boolean = false) extends ProjectUtil with ResultUtil{
 
   private var projectFiles: List[File] = List()
 
@@ -25,7 +25,7 @@ class Analyser(metrics: List[Metric], projectPath: String, threads: Int) extends
     * Refreshes the context and project files
     */
   def refresh(): Unit = {
-    projectFiles = getProjectFiles(projectPath).toList
+    projectFiles = getProjectFiles(projectPath, includeTest).toList
   }
 
 

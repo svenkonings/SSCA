@@ -12,14 +12,14 @@ object Main {
   def main(args: Array[String]): Unit = {
     val repoUser = "akka"
     val repoName = "akka"
-    val repoPath = "..\\akka00"
+    val repoPath = "..\\akka00test"
     val project = "HTTP"
     val version = "Final"
     val branch = "bb7727dee44364a6dff31ee99cad9ae3e6fe9830"
     val labels = List("bug")
 //    val repoUser = "gitbucket"
 //    val repoName = "gitbucket"
-//    val repoPath = "..\\gitbucket00"
+//    val repoPath = "..\\gitbucket00test"
 //    val project = "GitBucket"
 //    val version = "Landkroon"
 //    val branch = "53ae59271a3b5b832e3a7045e2b58205ca300d2a"

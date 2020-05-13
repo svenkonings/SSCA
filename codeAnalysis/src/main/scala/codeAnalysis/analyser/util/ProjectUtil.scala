@@ -14,7 +14,7 @@ trait ProjectUtil {
     * @param projectPath the path of the project
     * @return a list of all the scala files in the project
     */
-  def getProjectFiles(projectPath: String): Array[File] = {
+  def getProjectFiles(projectPath: String, includeTest: Boolean): Array[File] = {
     def listFiles(f: File): Array[File] = {
       val these = f.listFiles
       val scalaFiles = these.filter(f => """.*\.scala$""".r.findFirstIn(f.getName).isDefined)
@@ -22,7 +22,7 @@ trait ProjectUtil {
     }
 
     /* If testing: the test directory isn't filtered out*/
-    if (System.getenv("testing") == "y")
+    if (includeTest)
       listFiles(new File(projectPath))
     else
       listFiles(new File(projectPath)).filter(f => """(\\test\\)|(\/test\/)""".r.findFirstIn(f.getPath).isEmpty)
