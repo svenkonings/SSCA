@@ -1,5 +1,7 @@
 package ssca.validator
 
+import java.util.Date
+
 import codeAnalysis.analyser.result.ResultUnit
 import gitCrawler.Fault
 import main.scala.analyser.metric.Metric
@@ -7,8 +9,8 @@ import main.scala.analyser.metric.Metric
 /**
   * Created by erikl on 6/1/2017.
   */
-class ValidatorOObject(path: String, repoUser: String, repoName: String, branch: String, labels: List[String], instances: Int, threads: Int, metrics: List[Metric], outputName: String = "fullOutput")
-  extends Validator(path, repoUser, repoName, branch, labels, instances, threads, metrics, outputName){
+class ValidatorOObject(path: String, repoUser: String, repoName: String, branch: String, labels: List[String], instances: Int, threads: Int, metrics: List[Metric], outputName: String = "fullOutput", collectDate: Date)
+  extends Validator(path, repoUser, repoName, branch, labels, instances, threads, metrics, outputName, collectDate: Date){
 
   /**
     * Function that returns the header length
