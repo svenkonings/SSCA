@@ -3,6 +3,7 @@ package gitCrawler
 import dispatch.github.{GhCommit, GhIssue}
 import gitCrawler.util.GitDataBase
 import java.text.SimpleDateFormat
+import java.util.Date
 
 import scala.annotation.tailrec
 
@@ -10,7 +11,7 @@ import scala.annotation.tailrec
 /**
   * Created by erikl on 4/26/2017.
   */
-class RepoInfo(userName: String, repoName: String, token: String, labels: List[String], branch: String, repoPath: String) {
+class RepoInfo(userName: String, repoName: String, token: String, labels: List[String], branch: String, repoPath: String, collectDate: Date) {
   private val debug = false
   private val debugTreshhold = 15
   private val info = Map("user" -> userName, "repo" -> repoName, "token" -> token, "repoPath" -> repoPath, "branch" -> branch)
@@ -18,11 +19,11 @@ class RepoInfo(userName: String, repoName: String, token: String, labels: List[S
   private val dataBase = new GitDataBase(info("repoPath"))
   private val iso8601DateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
-  val dbCommits: List[Commit] = dataBase.readList[Commit]("Commits").sortBy(x => x.date).reverse
-  val dbIssues: List[Issue] = dataBase.readList[Issue]("Issues").sortBy(x => x.date).reverse
+  val dbCommits: List[Commit] = dataBase.readList[Commit]("Commits").filter(x => x.date.before(collectDate)).sortBy(x => x.date).reverse
+  val dbIssues: List[Issue] = dataBase.readList[Issue]("Issues").filter(x => x.date.before(collectDate)).sortBy(x => x.date).reverse
 
-  val commits: List[Commit] = removeDuplicates[Commit]((getCommits ::: dbCommits).distinct.sortBy(x => x.date).reverse, x => x.sha)
-  val issues: List[Issue] = removeDuplicates[Issue]((getIssues ::: dbIssues).sortBy(x => x.date).reverse, x => x.number)
+  val commits: List[Commit] = removeDuplicates[Commit]((getCommits ::: dbCommits).filter(x => x.date.before(collectDate)).distinct.sortBy(x => x.date).reverse, x => x.sha)
+  val issues: List[Issue] = removeDuplicates[Issue]((getIssues ::: dbIssues).filter(x => x.date.before(collectDate)).sortBy(x => x.date).reverse, x => x.number)
   val faults: List[Fault] = getFaults
 
 

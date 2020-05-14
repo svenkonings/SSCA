@@ -1,5 +1,7 @@
 package ssca.validator
 
+import java.util.Date
+
 import codeAnalysis.analyser.result.ResultUnit
 import dispatch.Http
 import gitCrawler.{Fault, Repo, RepoInfo}
@@ -9,10 +11,10 @@ import main.scala.analyser.metric.Metric
 /**
   * Created by erikl on 6/1/2017.
   */
-abstract class Validator(path: String, repoUser: String, repoName: String, branch: String, labels: List[String], instances: Int, threads: Int, metrics: List[Metric], outputName: String = "fullOutput")
+abstract class Validator(path: String, repoUser: String, repoName: String, branch: String, labels: List[String], instances: Int, threads: Int, metrics: List[Metric], outputName: String = "fullOutput", collectDate: Date = new Date())
   extends ValidatorBase(path, repoUser, repoName, metrics, outputName){
 
-  private val repoInfo = new RepoInfo(repoUser, repoName, token, labels, branch, repoPath)
+  private val repoInfo = new RepoInfo(repoUser, repoName, token, labels, branch, repoPath, collectDate)
   private var progress = 0
 
   /**
