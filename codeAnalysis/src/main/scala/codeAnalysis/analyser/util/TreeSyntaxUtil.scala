@@ -41,17 +41,17 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
         else
           ClassDefinition(getChildren(x), getRangePos(tree), getParents(x.symbol), getName(x), getObjectPackage(x.symbol), isAbstractClass(x), isNested(x), isAnonymousClass(x))
       case x: ModuleDef =>
-        ObjectDefinition(getChildren(x), getRangePos(tree), getParents(x.symbol),getName(x), getObjectPackage(x.symbol), isNested(x))
+        ObjectDefinition(getChildren(x), getRangePos(tree), getParents(x.symbol), getName(x), getObjectPackage(x.symbol), isNested(x))
 
       case x: DefDef =>
         if (x.symbol.isMethod && x.symbol.isSourceMethod && !x.symbol.isConstructor && !x.symbol.isSetter && !x.symbol.isGetter) {
-          val params = x.vparamss.flatten.foldLeft(List[Param]()){
+          val params = x.vparamss.flatten.foldLeft(List[Param]()) {
             (a, b) =>
-              val higher =  isHigherOrder(b.tpt.toString())
+              val higher = isHigherOrder(b.tpt.toString())
 
               a ::: List(Param(b.symbol.nameString, b.tpt.toString(), higher))
           }
-          val higher =  isHigherOrder(x.tpt.toString())
+          val higher = isHigherOrder(x.tpt.toString())
 
           MethodDef(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), isNested(x), isAnonymousFunction(x), params, x.tpt.toString(), higher)
         }
@@ -60,31 +60,31 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
 
       case x: ValDef =>
         if (isValDef(x))
-          ValDefinition(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter)
+          ValDefinition(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
         else if (isVarDef(x))
-          VarDefinition(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter)
+          VarDefinition(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
         else
           null
 
       case x: Ident =>
         if (isVal(x))
-          Val(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter)
+          Val(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
         else if (isVar(x))
-          Var(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter)
+          Var(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
         else
           null
 
       case x: Select =>
         val groups = """(.)\_\=""".r findFirstMatchIn getName(x)
-        val scope = x.symbol.owner.asInstanceOf[ClassSymbol].info.decls.filter(y => y.isVar || y.isVal)
+        val scope = x.symbol.owner.asInstanceOf[ClassSymbol].info.decls.filter(y => y.isVar || y.isVal || y.isLazy)
         val name = if (groups.nonEmpty) groups.get.group(1) else getName(x)
         val symbolType = scope.find(y => y.nameString == name)
         if (symbolType.nonEmpty) {
           val symbol = symbolType.get
           if (symbol.isVar)
-            Var(getChildren(x), getRangePos(tree), name, getOwner(x.symbol.owner), x.symbol.isParameter)
+            Var(getChildren(x), getRangePos(tree), name, getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
           else
-            Val(getChildren(x), getRangePos(tree), name, getOwner(x.symbol.owner), x.symbol.isParameter)
+            Val(getChildren(x), getRangePos(tree), name, getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
         }
         /*else if (x.symbol.isMethod) {
           if (isFor(x))
@@ -94,22 +94,30 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
           }else
             null
         }*/
-        else{
+        else {
           null
         }
 
       case x: Apply =>
         if (isFor(x))
           For(getChildren(x), getRangePos(tree))
-        else if (isFunctionCall(x))
-          FunctionCall(getChildren(x), getRangePos(tree), x.symbol.name.toString, getOwner(x.symbol.owner))
+        else if (isFunctionCall(x)) {
+          val params = x.args.foldLeft(List[Param]()) {
+            (a, b) =>
+              val higher = isHigherOrder(b.tpe.toString())
+
+              a ::: List(Param(b.symbol.nameString, b.tpe.toString(), higher))
+          }
+          val higher = isHigherOrder(x.tpe.toString())
+          FunctionCall(getChildren(x), getRangePos(tree), x.symbol.name.toString, getOwner(x.symbol.owner), params, x.tpe.toString, higher)
+        }
         else
           null
       case x: Assign =>
         if (isAssignment(x) && isVal(x.lhs))
-          ValAssignment(getChildren(x), getRangePos(tree), x.lhs.symbol.name.toString, getOwner(x.symbol.owner), x.symbol.isParameter)
+          ValAssignment(getChildren(x), getRangePos(tree), x.lhs.symbol.name.toString, getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
         else if (isAssignment(x) && isVar(x.lhs))
-          VarAssignment(getChildren(x), getRangePos(tree), x.lhs.symbol.name.toString, getOwner(x.symbol.owner), x.symbol.isParameter)
+          VarAssignment(getChildren(x), getRangePos(tree), x.lhs.symbol.name.toString, getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
         else
           null
 
@@ -117,7 +125,7 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
         MatchCase(getChildren(x), getRangePos(tree))
 
       case x: Bind =>
-        ValDefinition(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter)
+        ValDefinition(getChildren(x), getRangePos(tree), getName(x), getOwner(x.symbol.owner), x.symbol.isParameter, x.symbol.isLazy)
 
       case x: CaseDef =>
         Case(getChildren(x), getRangePos(tree), getChildren(x.pat))

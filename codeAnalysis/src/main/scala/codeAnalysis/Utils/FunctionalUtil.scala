@@ -72,18 +72,17 @@ trait FunctionalUtil {
       def +(p: (A, B)): (A, B) = (p._1 + t._1, p._2 + t._2)
     }
     def score(x: AST): (Int, Int) = x match {
-      case x: FunctionCall if functionalFuncs contains x.name => (1, 0)
-      case x: FunctionCall if impFuncs contains x.name =>
-        // Generates anonymous function internally, -1 funcCalls to compensate
-        if (x.children.exists(_.isInstanceOf[FunctionDef]))
-          (-1, 1)
-        else
-          (0, 1)
+      case x: FunctionCall =>
+        val funcPoints = if (x.higher || x.params.exists(_.higher)) 1 else 0
+        val impPoints = if (x.typeString.contains("Unit") || x.params.exists(_.typeString.contains("Unit"))) 1 else 0
+        (funcPoints, impPoints)
       case _: MatchCase => (1, 0)
       case _: For => (0, 1)
       case _: While => (0, 1)
       case _: DoWhile => (0, 1)
+      case x: FunctionDef if x.typeString.contains("Unit") || x.params.exists(_.typeString.contains("Unit")) => (1, 1)
       case _: FunctionDef => (1, 0)
+      case x: Value if x.isLazy => (1, 0)
       case _ => (0, 0)
     }
 
