@@ -61,11 +61,23 @@ abstract class ResultUnit(position: RangePosition, val parent: ResultUnit) exten
     }.map(_.asInstanceOf[FunctionResult])
   }
 
+  def allFunctions: List[FunctionResult] = results.toList.flatMap{
+    case f: FunctionResult => List(f)
+    case r: ResultUnit => r.allFunctions
+    case _ => List()
+  }
+
   def objects: List[ObjectResult] = {
     results.toList.filter{
       case _: ObjectResult => true
       case _ => false
     }.map(_.asInstanceOf[ObjectResult])
+  }
+
+  def allObjects: List[ObjectResult] = results.toList.flatMap{
+    case f: ObjectResult => List(f)
+    case r: ResultUnit => r.allObjects
+    case _ => List()
   }
 
   def nestedFunctions: List[FunctionResult] = {

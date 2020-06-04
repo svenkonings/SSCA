@@ -20,7 +20,8 @@ class FunctionalMetrics extends FunctionMetric with FunctionalUtil {
     */
   override def run(tree: MethodDef, code: List[String]): List[MetricResult] = {
     val result = paradigmScore(tree)
-    List(
+//    if (result.funcPoints == 0 && result.impPoints == 0) List() else
+      List(
 //      new MetricResult(tree.pos, tree.name, "Recursive", result.recursive),
 //      new MetricResult(tree.pos, tree.name, "Nested", result.nested),
 //      new MetricResult(tree.pos, tree.name, "HigherOrderParams", result.higherOrderParams),

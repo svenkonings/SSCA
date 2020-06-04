@@ -33,32 +33,32 @@ class FileResult(position: RangePosition, val name : String) extends ResultUnit(
     position.source.path + "|" + name + "%{file}"
   }
 
-  def avrF(functions: List[FunctionResult]) : List[MetricResult] = {
+  def avrF(functions: List[FunctionResult] = allFunctions) : List[MetricResult] = {
     functions.foldLeft(List[List[MetricResult]]())((a, b) => b.metrics.sortWith(_.metricName < _.metricName) :: a)
       .transpose.map(x => new MetricResult(position, name, "functionAvr" + x.head.metricName.capitalize, x.map(_.value.toDouble).sum / x.length))
   }
 
-  def avrO(objects: List[ObjectResult]) : List[MetricResult] = {
+  def avrO(objects: List[ObjectResult] = allObjects) : List[MetricResult] = {
     objects.foldLeft(List[List[MetricResult]]())((a, b) => b.metrics.sortWith(_.metricName < _.metricName) :: a)
       .transpose.map(x => new MetricResult(position, name, "objectAvr" + x.head.metricName.capitalize, x.map(_.value.toDouble).sum / x.length))
   }
 
-  def sumF(functions: List[FunctionResult]) : List[MetricResult] = {
+  def sumF(functions: List[FunctionResult] = allFunctions) : List[MetricResult] = {
     functions.foldLeft(List[List[MetricResult]]())((a, b) => b.metrics.sortWith(_.metricName < _.metricName) :: a)
       .transpose.map(x => new MetricResult(position, name, "functionSum" + x.head.metricName.capitalize, x.map(_.value.toDouble).sum))
   }
 
-  def sumO(objects: List[ObjectResult]) : List[MetricResult] = {
+  def sumO(objects: List[ObjectResult] = allObjects) : List[MetricResult] = {
     objects.foldLeft(List[List[MetricResult]]())((a, b) => b.metrics.sortWith(_.metricName < _.metricName) :: a)
       .transpose.map(x => new MetricResult(position, name, "objectSum" + x.head.metricName.capitalize, x.map(_.value.toDouble).sum))
   }
 
-  def maxF(functions: List[FunctionResult]) : List[MetricResult] = {
+  def maxF(functions: List[FunctionResult] = allFunctions) : List[MetricResult] = {
     functions.foldLeft(List[List[MetricResult]]())((a, b) => b.metrics.sortWith(_.metricName < _.metricName) :: a)
       .transpose.map(x => new MetricResult(position, name, "functionMax" + x.head.metricName.capitalize, x.map(_.value.toDouble).max))
   }
 
-  def maxO(objects: List[ObjectResult]) : List[MetricResult] = {
+  def maxO(objects: List[ObjectResult] = allObjects) : List[MetricResult] = {
     objects.foldLeft(List[List[MetricResult]]())((a, b) => b.metrics.sortWith(_.metricName < _.metricName) :: a)
       .transpose.map(x => new MetricResult(position, name, "objectMax" + x.head.metricName.capitalize, x.map(_.value.toDouble).max))
   }

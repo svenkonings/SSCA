@@ -1,10 +1,10 @@
 package gitCrawler
 
 import java.io.File
-import java.nio.file.Paths
+import java.nio.file.{Files, Paths}
 
 import dispatch.github.{GhCommit, GhIssue}
-import org.eclipse.jgit.api.{Git}
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 
@@ -20,11 +20,11 @@ class Repo(userName: String, repoName: String, repoPath: String, branch: String,
     * @return
     */
   private def initGitRepo: Git = {
-    val dir = new File(repoPath)
-    if (!dir.exists())
-      GitR.runCommand(Paths.get(dir.getParent), "git", "clone", "https://github.com/" + userName + "/" + repoName + ".git", repoPath)
+    val dir = Paths.get(repoPath).toAbsolutePath.normalize()
+    if (!Files.exists(dir))
+      GitR.runCommand(dir.getParent, "git", "clone", "https://github.com/" + userName + "/" + repoName + ".git", dir.toString)
 
-    Git.open(dir)
+    Git.open(dir.toFile)
   }
 
 

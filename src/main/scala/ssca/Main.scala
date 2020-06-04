@@ -1,9 +1,9 @@
 package ssca
 
-import java.util.{Calendar, Date, GregorianCalendar}
+import java.util.{Calendar, GregorianCalendar}
 
 import codeAnalysis.STimer
-import codeAnalysis.metrics.{PatternSize, _}
+import codeAnalysis.metrics._
 import dispatch.Http
 import ssca.validator._
 
