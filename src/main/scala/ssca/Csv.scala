@@ -29,30 +29,49 @@ object Csv {
     repo.checkoutHead()
 
     println("Analysing...")
-    val metrics = List(new FunctionalMetrics)
+    val metrics = List(new FunctionalMetricsFiltered)
     val an = new Analyser(metrics, repoPath, 8, includeTest = false)
 
     val fileResults = an.analyse().map(_.asInstanceOf[FileResult])
 
+    println("Calculating Function Scores...")
+    functionScores(repoName, fileResults, path)
     println("Calculating Object Scores...")
-    objectScores(fileResults, path)
+    objectScores(repoName, fileResults, path)
   }
 
-  def objectScores(fileResults: List[FileResult], path: Path): Unit = {
-    val objectResults = fileResults.flatMap(_.allObjects).filter(_.functions.flatMap(_.flatten()).nonEmpty)
-    val header = "Object,Average,Sum,Max"
-    val body = for (objectResult <- objectResults) yield {
-      val name = objectResult.name
-      // Only look at functions of current object and not nested objects
-      val scores = objectResult.functions.flatMap(_.flatten()).map(_.value)
-      val sum = scores.sum
-      val average = sum / scores.size
-      val max = scores.max
-      s"$name,$average,$sum,$max"
+  def functionScores(repoName: String, fileResults: List[FileResult], path: Path): Unit = {
+    val header = "Function,Score"
+    val body = for (
+      fileResult <- fileResults;
+      functionResult <- fileResult.allFunctions;
+      metricResult <- functionResult.flatten()
+    ) yield {
+      val name = functionResult.name
+      val score = metricResult.value
+      s"$name,$score"
     }
     val csv = (header :: body).mkString("\n")
 
-    write(path.resolve("objects.csv"), csv)
+    write(path.resolve(s"${repoName}Functions.csv"), csv)
+  }
+
+  def objectScores(repoName: String, fileResults: List[FileResult], path: Path): Unit = {
+    val header = "Object,Average"
+    val body = for (
+      fileResult <- fileResults;
+      objectResult <- fileResult.allObjects
+      if objectResult.functions.flatMap(_.flatten()).nonEmpty
+    ) yield {
+      val name = objectResult.name
+      // Only look at functions of current object and not nested objects
+      val scores = objectResult.functions.flatMap(_.flatten()).map(_.value)
+      val average = scores.sum / scores.size
+      s"$name,$average"
+    }
+    val csv = (header :: body).mkString("\n")
+
+    write(path.resolve(s"${repoName}Objects.csv"), csv)
   }
 
   def write(path: Path, contents: String): Unit =
