@@ -11,4 +11,6 @@ class Issue(issue: GhIssue) {
   def number: Int = issue.number
   def title: String = issue.title
   def date: Date = issue.created_at
+  def updated: Date = issue.updated_at
+  def closed: Date = issue.closed_at
 }

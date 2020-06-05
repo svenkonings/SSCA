@@ -65,7 +65,7 @@ trait FunctionalUtil {
     * @return (functional, imperative)
     */
   def countFuncCalls(tree: AST): (Int, Int) = {
-    implicit class TuppleAdd[A: Numeric, B: Numeric](t: (A, B)) {
+    implicit class TupleAdd[A: Numeric, B: Numeric](t: (A, B)) {
 
       import Numeric.Implicits._
 
@@ -76,13 +76,15 @@ trait FunctionalUtil {
         val funcPoints = if (x.higher || x.params.exists(_.higher)) 1 else 0
         val impPoints = if (x.typeString.contains("Unit") || x.params.exists(_.typeString.contains("Unit"))) 1 else 0
         (funcPoints, impPoints)
+      case x: FunctionDef =>
+        val funcPoints = if (x.higher || x.params.exists(_.higher)) 2 else 1 // Functions get 1 funcPoint by default
+        val impPoints = if (x.typeString.contains("Unit") || x.params.exists(_.typeString.contains("Unit"))) 1 else 0
+        (funcPoints, impPoints)
+      case x: Value if x.isLazy => (1, 0)
       case _: MatchCase => (1, 0)
       case _: For => (0, 1)
       case _: While => (0, 1)
       case _: DoWhile => (0, 1)
-      case x: FunctionDef if x.typeString.contains("Unit") || x.params.exists(_.typeString.contains("Unit")) => (1, 1)
-      case _: FunctionDef => (1, 0)
-      case x: Value if x.isLazy => (1, 0)
       case _ => (0, 0)
     }
 
@@ -139,8 +141,8 @@ case class ParadigmScore(
                         ) {
   val funcPoints: Int = recursive + nested + higherOrderParams + funcCalls
   val impPoints: Int = sideEffects + impCalls
-  val funcPercent: Double = if (impPoints + funcPoints > 0)
-    funcPoints.toDouble / (impPoints + funcPoints).toDouble
+  val paradigmScore: Double = if (funcPoints + impPoints != 0)
+    (funcPoints - impPoints).toDouble / (impPoints + funcPoints).toDouble
   else
     0
 }
