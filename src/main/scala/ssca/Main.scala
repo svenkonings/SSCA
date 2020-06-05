@@ -16,12 +16,12 @@ object Main {
   def main(args: Array[String]): Unit = {
     analyseAkka()
     analyseGitbucket()
-    analyseShadowsocks()
+//    analyseShadowsocks()
     Http.shutdown()
   }
 
   def analyseAkka(): Unit = analyse(
-    "..\\akkaNew2",
+    "..\\akkaAnalysis",
     "akka",
     "akka",
     "bb7727dee44364a6dff31ee99cad9ae3e6fe9830",
@@ -30,9 +30,9 @@ object Main {
   )
 
   def analyseGitbucket(): Unit = analyse(
+    "..\\gitbucketAnalysis",
     "gitbucket",
     "gitbucket",
-    "..\\gitbucketNew2",
     "53ae59271a3b5b832e3a7045e2b58205ca300d2a",
     List("bug"),
     new GregorianCalendar(2017, Calendar.JULY, 27, 23, 59).getTime
@@ -41,14 +41,14 @@ object Main {
   def analyseShadowsocks(): Unit = analyse(
     "shadowsocks",
     "shadowsocks-android",
-    "..\\shadowsockNew",
+    "..\\shadowsocksAnalysis",
     "398db4f40716cd91f86f8c07a57625af9ce2c696",
     List("bug"),
     new GregorianCalendar(2017, Calendar.JULY, 19, 23, 59).getTime
   )
 
   def analyse(repoPath: String, repoUser: String, repoName: String, branch: String, labels: List[String], collectDate: Date): Unit = {
-    val metrics = List(new FunctionalMetrics)
+    val metrics = List(new FunctionalMetrics, new FunctionalMetricsLandkroon)
 
     val validatorN = new ValidatorNObject(repoPath, repoUser, repoName, branch, labels, 3, 5, metrics, "fullOutput" + "New", collectDate)
     STimer.time("Analysis", validatorN.run())

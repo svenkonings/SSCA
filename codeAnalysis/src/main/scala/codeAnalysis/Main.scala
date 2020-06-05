@@ -9,7 +9,7 @@ import main.scala.analyser.Analyser
 object Main {
 
   def main(args: Array[String]): Unit = {
-    val metrics = List(new FunctionalMetrics)
+    val metrics = List(new FunctionalMetrics, new FunctionalMetricsLandkroon)
     val an = new Analyser(metrics, "C:\\Users\\SvenK\\Documents\\akka", 6)
     val results = an.analyse()
     val groupedResults = results.flatMap(_.flatten()).groupBy(_.metricName)
