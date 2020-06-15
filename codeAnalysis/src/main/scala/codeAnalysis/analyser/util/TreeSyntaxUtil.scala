@@ -105,8 +105,8 @@ class TreeSyntaxUtil(override val compiler: CompilerS) extends TreeUtil(compiler
           val params = x.args.foldLeft(List[Param]()) {
             (a, b) =>
               val higher = isHigherOrder(b.tpe.toString())
-
-              a ::: List(Param(b.symbol.nameString, b.tpe.toString(), higher))
+              val symbol = if (b.symbol != null) b.symbol else b.tpe.typeSymbol
+              a ::: List(Param(symbol.nameString, b.tpe.toString(), higher))
           }
           val higher = isHigherOrder(x.tpe.toString())
           FunctionCall(getChildren(x), getRangePos(tree), x.symbol.name.toString, getOwner(x.symbol.owner), params, x.tpe.toString, higher)
