@@ -14,7 +14,7 @@ import ssca.validator._
 object Main {
 
   def main(args: Array[String]): Unit = {
-    analyseAkka()
+//    analyseAkka()
     analyseGitbucket()
 //    analyseShadowsocks()
     Http.shutdown()
@@ -26,11 +26,11 @@ object Main {
     "akka",
     "bb7727dee44364a6dff31ee99cad9ae3e6fe9830",
     List("bug"),
-    new GregorianCalendar(2017, Calendar.JUNE, 13, 23, 59).getTime
+    new GregorianCalendar(2017, Calendar.JULY, 19, 23, 59).getTime
   )
 
   def analyseGitbucket(): Unit = analyse(
-    "..\\gitbucketAnalysis",
+    "..\\gitbucketAll",
     "gitbucket",
     "gitbucket",
     "53ae59271a3b5b832e3a7045e2b58205ca300d2a",
@@ -39,16 +39,16 @@ object Main {
   )
 
   def analyseShadowsocks(): Unit = analyse(
+    "..\\shadowsocksAnalysis",
     "shadowsocks",
     "shadowsocks-android",
-    "..\\shadowsocksAnalysis",
     "398db4f40716cd91f86f8c07a57625af9ce2c696",
     List("bug"),
-    new GregorianCalendar(2017, Calendar.JULY, 19, 23, 59).getTime
+    new GregorianCalendar(2017, Calendar.JUNE, 13, 23, 59).getTime
   )
 
   def analyse(repoPath: String, repoUser: String, repoName: String, branch: String, labels: List[String], collectDate: Date): Unit = {
-    val metrics = List(new FunctionalMetrics, new FunctionalMetricsLandkroon)
+    val metrics = List(new CBO, new Complex, new DIT, new DON, new Inheritance, new LCOM, new Loc, new NOC, new NPVS, new OutDegree, new PATC, new PatternSize, new RFC, new WMC)
 
     val validatorN = new ValidatorNObject(repoPath, repoUser, repoName, branch, labels, 3, 5, metrics, "fullOutput" + "New", collectDate)
     STimer.time("Analysis", validatorN.run())
