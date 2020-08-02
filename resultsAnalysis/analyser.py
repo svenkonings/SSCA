@@ -77,7 +77,7 @@ class Analyser:
 
 		# Descriptive statistics
 		result = df[numtypes].describe()
-		a = np.vstack([np.asarray(map(re.escape, result.index)), np.asarray(map(lambda x: map(lambda y: format(y, '.2f'), x), result.as_matrix())).T]).T
+		a = np.vstack([np.asarray(map(re.escape, result.index)), np.asarray(map(lambda x: map(lambda y: format(y, '.2f'), x), result.values)).T]).T
 		b = np.vstack([np.append([""], np.asarray(result.keys())), a]).T
 
 		tg.createTable(b, file=open(self.args.destination + "/" +"descriptve-table.txt", 'w'), caption="Descriptive statistics")
@@ -85,7 +85,7 @@ class Analyser:
 
 		# Fault descriptive statistics
 		result = df[df[self.dependentKey] > 0][numtypes].describe()
-		a = np.vstack([np.asarray(map(re.escape, result.index)), np.asarray(map(lambda x: map(lambda y: format(y, '.2f'), x), result.as_matrix())).T]).T
+		a = np.vstack([np.asarray(map(re.escape, result.index)), np.asarray(map(lambda x: map(lambda y: format(y, '.2f'), x), result.values)).T]).T
 		b = np.vstack([np.append([""], np.asarray(result.keys())), a]).T
 
 		tg.createTable(b, file=open(self.args.destination + "/" +"fault-descriptve-table.txt", 'w'),caption="Fault Descriptive statistics")			
@@ -96,7 +96,7 @@ class Analyser:
 		numtypes = self.getNumTypes(df)
 		result = df[numtypes].corr()
 
-		a = np.vstack([np.asarray(map(re.escape, result.index)), np.asarray(map(lambda x: map(lambda y: format(y, '.6f'), x), result.as_matrix())).T]).T
+		a = np.vstack([np.asarray(map(re.escape, result.index)), np.asarray(map(lambda x: map(lambda y: format(y, '.6f'), x), result.values)).T]).T
 		b = np.vstack([np.append([""], np.asarray(result.keys())), a])
 
 		tg.createTable(b, file=open(self.args.destination + "/" +"correlations-table.txt", 'w'), caption="Metric correlation")
@@ -132,7 +132,7 @@ class Analyser:
 		df = df.groupby(['path']).apply(self.wavg)
 
 		numtypes = self.getNumTypes(df)
-		tableData = [["Metric", "Constant", "Coefficient", "P-value", "R^2", "Completeness", "Correctness"]]
+		tableData = [["Metric", "Constant", "Coefficient", "P-value", "$R^2$", "Completeness", "Correctness"]]
 
 		# Prepares the dataframe for ols or logit regression
 		if self.args.ols:

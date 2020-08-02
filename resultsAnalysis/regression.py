@@ -237,7 +237,7 @@ def plotLogisticRegression(df, result, x_label, y_label):
 
 def logitRegression(x, y):
 	module = sm.Logit(y, sm.add_constant(x))
-	return module.fit()
+	return module.fit(full_output=False)
 
 
 def olsRegression(x, y):
