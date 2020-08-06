@@ -132,7 +132,7 @@ class Analyser:
 		df = df.groupby(['path']).apply(self.wavg)
 
 		numtypes = self.getNumTypes(df)
-		tableData = [["Metric", "Constant", "Coefficient", "P-value", "$R^2$", "Completeness", "Correctness"]]
+		tableData = [["Metric", "Constant", "Coefficient", "P-value", "$R^2$", "Precision", "Recall", "MCC"]]
 
 		# Prepares the dataframe for ols or logit regression
 		if self.args.ols:
@@ -152,18 +152,20 @@ class Analyser:
 
 			# Get correctness and completeness
 			predTable = reg.genPredTable(result, df_test, a, self.dependentKey, self.dependentVar, threshold=0.5)
-			comp = reg.completeness(predTable.astype(float))
-			corr = reg.correctness(predTable.astype(float))
+			precision = reg.precision(predTable.astype(float))
+			recall = reg.recall(predTable.astype(float))
+			mcc = reg.mcc(predTable.astype(float))
 
 			# Get the regression measurements
 			const = format(result.params[0], '.4f')
 			coef = format(result.params[1], '.4f')
 			rsquared = format(result.rsquared if self.args.ols else result.prsquared, '.4f')
 			pvalue = format(result.pvalues[1], '.4f') if result.pvalues[1] > self.args.sigThreshold else "\\textbf{" + format(result.pvalues[1], '.4f') + "}"
-			comp = format(comp * 100, '.2f') + "\\%"
-			corr = format(corr * 100, '.2f') + "\\%"
+			precision = format(precision * 100, '.2f') + "\\%"
+			recall = format(recall * 100, '.2f') + "\\%"
+			mcc = format(mcc, '.2f')
 
-			tableData = np.vstack([tableData, [a, const, coef, pvalue, rsquared, comp, corr]])
+			tableData = np.vstack([tableData, [a, const, coef, pvalue, rsquared, precision, recall, mcc]])
 
 			# Create plots
 			fig, ax = reg.plotLogisticRegression(df_test, result, a, self.dependentVar)
@@ -263,9 +265,10 @@ class Analyser:
 
 			predTable = reg.genPredTable(result, df_test, numtypes, self.dependentKey, self.dependentVar, threshold=0.5)
 
-		comp = reg.completeness(predTable.astype(float))
-		corr = reg.correctness(predTable.astype(float))
-	
+		precision = reg.precision(predTable.astype(float))
+		recall = reg.recall(predTable.astype(float))
+		mcc = reg.mcc(predTable.astype(float))
+
 
 
 		tableData = [["Metric", "Coefficient", "P-value"]]
@@ -285,7 +288,7 @@ class Analyser:
 
 		# Create completeness and correctness table
 
-		tableOutput = np.array([["", "Completeness", "Correctness"], ["Multi. reg.", format(comp * 100, '.2f') + "\\%", format(corr * 100, '.2f') + "\\%"]])
+		tableOutput = np.array([["", "Precision", "Recall", "MCC"], ["Multi. reg.", format(precision * 100, '.2f') + "\\%", format(recall * 100, '.2f') + "\\%", format(mcc, '.2f')]])
 		tg.createTable(tableOutput, file=open(self.args.destination + "/" +"completeness-correctness-table.txt", 'w'), caption="Multivariate regression: Completeness and correctness")
 
 		#  Create completeness and correctness plot
