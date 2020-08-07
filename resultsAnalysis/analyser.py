@@ -178,8 +178,13 @@ class Analyser:
 			plt.close(fig2)
 
 		# Create the table
-		tg.createTable(tableData, file=open(self.args.destination + "/" +"univariate-regression-table.txt", 'w'), caption="Univariate regression")
-			
+		if self.args.ols:
+			name = "univariate-linear-regression-table.txt"
+			caption = "Univariate linear regression"
+		else:
+			name = "univariate-logistic-regression-table.txt"
+			caption = "Univariate logistic regression"
+		tg.createTable(tableData, file=open(self.args.destination + "/" + name, 'w'), caption=caption)
 
 
 	def runMultiReg(self, df_train, numtypes, formula=None):
@@ -276,7 +281,12 @@ class Analyser:
 			pvalue = lambda x: format(result.pvalues[x], '.4f') if result.pvalues[x] > self.args.sigThreshold else "\\textbf{" + format(result.pvalues[x], '.4f') + "}"
 			tableData = np.vstack([tableData, [result.params.keys()[x], format(result.params[x], '.4f'), pvalue(x)]])
 
-		tg.createTable(tableData, file=open(self.args.destination + "/" +"multi-regression-table.txt", 'w'), caption="Multivariate regression")
+		if self.args.ols:
+			caption = "Multivariate linear regression"
+		else:
+			caption = "Multivariate logistic regression"
+
+		tg.createTable(tableData, file=open(self.args.destination + "/" +"multi-regression-table.txt", 'w'), caption=caption)
 
 
 		# Create faulty not faulty table
@@ -289,7 +299,7 @@ class Analyser:
 		# Create completeness and correctness table
 
 		tableOutput = np.array([["", "Precision", "Recall", "MCC"], ["Multi. reg.", format(precision * 100, '.2f') + "\\%", format(recall * 100, '.2f') + "\\%", format(mcc, '.2f')]])
-		tg.createTable(tableOutput, file=open(self.args.destination + "/" +"completeness-correctness-table.txt", 'w'), caption="Multivariate regression: Completeness and correctness")
+		tg.createTable(tableOutput, file=open(self.args.destination + "/" +"completeness-correctness-table.txt", 'w'), caption=caption + ": Completeness and correctness")
 
 		#  Create completeness and correctness plot
 		if self.args.kfold:
