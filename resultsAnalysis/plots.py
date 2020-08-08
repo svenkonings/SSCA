@@ -67,11 +67,9 @@ def hist_faults(path, name, axis):
 projects = [
     ('akka', 'Akka'),
     ('coursier', 'Coursier'),
-    ('elastic4s', 'elastic4s'),
     ('gitbucket', 'Gitbucket'),
     ('http4s', 'Http4s'),
     ('lagom', 'Lagom'),
-    ('playframework', 'Play framework'),
     ('quill', 'Quill'),
     ('scalafmt', 'scalafmt'),
     ('scala-js', 'Scala.js'),
